@@ -1,0 +1,71 @@
+<html>
+  	<head>
+    	<title>Careers @ Zopper - Test solutions</title>
+    	<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    	<link rel="stylesheet" type="text/css" href="/static/css/styles.css">
+  	</head>
+  	<body>
+      	<table summary="Test your solutions">
+	    	<thead>
+	    		<tr>
+		        	<th scope="col">Problem</th>
+		            <th scope="col">Test Solution</th>
+		            <th scope="col">Cases verified</th>
+		            <th scope="col">Passed</th>
+	        	</tr>
+	    	</thead>
+	        <tfoot>
+	    		<tr>
+	        		<td colspan="4"><em>*Solve all the problems to receive a call from Zopper</em></td>
+	        	</tr>
+	    	</tfoot>
+	    	<tbody>
+	    	{% for problem in problems %}
+	    		<tr>
+		        	<td>{{ problem.name }}</td>
+		            <td><input class="button" type="submit" value="Go!" onclick="testProblem({{ loop.index }}, '{{ user.id }}', '{{ problem.id }}'); return false;" /></td>
+		            <td><span id="problem-{{ loop.index }}-cases"></span></td>
+		            <td><img id="problem-{{ loop.index }}-verified"></td>
+	        	</tr>
+	        {% endfor %}
+	    	</tbody>
+		</table>
+  	</body>
+</html>
+
+
+<script>
+function testProblem(index, userHash, problemHash) {
+	var data = new Object();
+	data.userHash = userHash;
+	data.problemHash = problemHash;
+
+	data = JSON.stringify(data);
+
+	$.ajax({
+		type       : "POST",
+		dataType   : 'json',
+    	contentType: 'application/json; charset=UTF-8',
+		url        : "testProblem/",
+		data       : data,
+		success: function(response) {
+										var testCases = $('#problem-' + index + '-cases');
+										var verifiedImage = $('#problem-' + index + '-verified');
+										if(response.verified == 'invalid') {
+											testCases.html('Invalid response');
+											verifiedImage.attr('src','/static/img/cross.png');
+										}
+										else {
+											testCases.html(response.casesVerified + '/' + response.totalCases);
+											if(response.verified) {
+												verifiedImage.attr('src','/static/img/tick.png');
+
+											}
+											else {
+												verifiedImage.attr('src','/static/img/cross.png');
+											}
+										}
+								}
+	});
+}
+</script>
